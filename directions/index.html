@@ -56,8 +56,305 @@ There are convenient transport links including buses and trains into the city fr
         Talks will be in the Joseph Black Building (School of Chemistry).<br><br>
     </p>
 
-<div style="width: 100%"><iframe width="100%" height="600" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?width=100%25&amp;height=600&amp;hl=en&amp;q=university%20of%20glasgow+(My%20Business%20Name)&amp;t=&amp;z=14&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"><a href="https://www.mapsdirections.info/fr/calculer-la-population-sur-une-carte"></a></iframe></div>
-<br>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workshop Venue Map</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── Scoped to .wk-map-wrap ── */
+.wk-map-wrap {
+  font-family: system-ui, -apple-system, sans-serif;
+  max-width: 780px;
+  margin: 0 auto;
+  color: #1a1a1a;
+}
+
+/* Filter buttons */
+.wk-map-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 0.85rem;
+}
+.wk-filter-btn {
+  padding: 5px 13px;
+  border-radius: 20px;
+  border: 1.5px solid transparent;
+  font-size: 12.5px;
+  font-family: 'DM Mono', monospace;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: #f5f3ef;
+  color: #555;
+  border-color: #ddd9d0;
+}
+.wk-filter-btn.wk-on {
+  color: #fff;
+}
+.wk-filter-btn[data-cat="venue"].wk-on    { background: #2e7fc0; border-color: #2e7fc0; }
+.wk-filter-btn[data-cat="accomm"].wk-on  { background: #7068cc; border-color: #7068cc; }
+.wk-filter-btn[data-cat="pub"].wk-on     { background: #c9861a; border-color: #c9861a; }
+.wk-filter-btn[data-cat="food"].wk-on    { background: #2a8a5c; border-color: #2a8a5c; }
+
+/* Map container */
+#wk-leaflet-map {
+  width: 100%;
+  height: 460px;
+  border-radius: 8px;
+  border: 1px solid #ddd9d0;
+  overflow: hidden;
+  z-index: 0;
+}
+
+/* Popup overrides */
+.wk-popup { min-width: 200px; }
+.wk-popup h4 {
+  font-family: 'Lora', Georgia, serif;
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0 0 4px;
+  color: #111;
+}
+.wk-popup .wk-pop-type {
+  font-family: 'DM Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+  display: block;
+}
+.wk-popup p {
+  font-size: 12.5px;
+  color: #444;
+  margin: 0 0 3px;
+  line-height: 1.5;
+}
+.wk-popup a {
+  font-size: 12px;
+  color: #2e7fc0;
+  text-decoration: none;
+}
+.wk-popup a:hover { text-decoration: underline; }
+
+/* Map note */
+.wk-map-note {
+  font-size: 12px;
+  color: #888;
+  font-family: 'DM Mono', monospace;
+  margin-top: 0.6rem;
+  letter-spacing: 0.01em;
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     DROP THIS .wk-map-wrap DIV INTO YOUR PAGE
+     (along with the <style>, Leaflet CSS link,
+      Leaflet JS script, and the inline <script>)
+═══════════════════════════════════════════════ -->
+
+<div class="wk-map-wrap">
+
+  <!-- Category filters -->
+  <div class="wk-map-filters" role="group" aria-label="Filter map markers">
+    <button class="wk-filter-btn wk-on" data-cat="venue"  onclick="wkToggleCat('venue',this)">🏛 Venue</button>
+    <button class="wk-filter-btn wk-on" data-cat="accomm" onclick="wkToggleCat('accomm',this)">🏠 Accommodation</button>
+    <button class="wk-filter-btn wk-on" data-cat="pub"    onclick="wkToggleCat('pub',this)">🍺 Pubs</button>
+    <button class="wk-filter-btn wk-on" data-cat="food"   onclick="wkToggleCat('food',this)">🍽 Restaurants</button>
+  </div>
+
+  <div id="wk-leaflet-map"></div>
+  <p class="wk-map-note">Click any marker for details · Walk from accommodation to venue ~20 min via Botanic Gardens &amp; Byres Road</p>
+
+</div><!-- end .wk-map-wrap -->
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ── Map initialisation ──────────────────────────────────
+const wkMap = L.map('wk-leaflet-map', {
+  center: [55.8780, -4.2930],
+  zoom: 15,
+  scrollWheelZoom: false
+});
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  maxZoom: 19
+}).addTo(wkMap);
+
+// ── Custom marker factory ────────────────────────────────
+function wkIcon(color, emoji) {
+  return L.divIcon({
+    className: '',
+    html: `<div style="
+      background:${color};
+      width:34px;height:34px;
+      border-radius:50% 50% 50% 0;
+      transform:rotate(-45deg);
+      border:2px solid rgba(0,0,0,0.15);
+      box-shadow:0 2px 6px rgba(0,0,0,0.22);
+      display:flex;align-items:center;justify-content:center;">
+      <span style="transform:rotate(45deg);font-size:15px;line-height:1">${emoji}</span>
+    </div>`,
+    iconSize: [34, 34],
+    iconAnchor: [17, 34],
+    popupAnchor: [0, -36]
+  });
+}
+
+// ── Place data ───────────────────────────────────────────
+const wkPlaces = [
+  {
+    cat: 'venue',
+    lat: 55.8720, lng: -4.2893,
+    icon: wkIcon('#2e7fc0','🏛'),
+    title: 'Joseph Black Building',
+    type: 'Conference venue',
+    typeColor: '#2e7fc0',
+    body: 'School of Chemistry, University of Glasgow<br>University Place, Glasgow G12 8QQ',
+    link: 'https://maps.google.com/?q=Joseph+Black+Building,+University+of+Glasgow',
+    linkText: 'Open in Google Maps'
+  },
+  {
+    cat: 'accomm',
+    lat: 55.8845, lng: -4.2972,
+    icon: wkIcon('#7068cc','🏠'),
+    title: 'Queen Margaret Residences',
+    type: 'Accommodation',
+    typeColor: '#7068cc',
+    body: 'Bellshaugh Court, Kirklee, Glasgow G12 0PR<br>~20 min walk to venue via Botanic Gardens &amp; Byres Road',
+    link: 'https://maps.google.com/?q=Queen+Margaret+Residences+Glasgow',
+    linkText: 'Open in Google Maps'
+  },
+  {
+    cat: 'pub',
+    lat: 55.87300, lng: -4.29641,
+    icon: wkIcon('#c9861a','🍺'),
+    title: 'The Aragon Bar',
+    type: 'Pub — Monday suggestion',
+    typeColor: '#c9861a',
+    body: '131 Byres Road, Glasgow G12 8TT<br>⭐ 4.5 · Classic West End local, great atmosphere, well-priced pints',
+    link: 'https://maps.google.com/?cid=3262231586357684835',
+    linkText: 'Open in Google Maps'
+  },
+  {
+    cat: 'pub',
+    lat: 55.87422, lng: -4.29510,
+    icon: wkIcon('#c9861a','🍺'),
+    title: "Tennent's",
+    type: 'Pub — Monday suggestion',
+    typeColor: '#c9861a',
+    body: '191 Byres Road, Glasgow G12 8TN<br>⭐ 4.4 · Large, easy to accommodate groups, excellent cask ale selection',
+    link: 'https://maps.google.com/?cid=4315670359554874060',
+    linkText: 'Open in Google Maps'
+  },
+  {
+    cat: 'pub',
+    lat: 55.87454, lng: -4.29307,
+    icon: wkIcon('#c9861a','🍺'),
+    title: 'Brel',
+    type: 'Pub &amp; restaurant — Monday / Tuesday',
+    typeColor: '#c9861a',
+    body: '37–43 Ashton Lane, Glasgow G12 8SJ<br>⭐ 4.0 · Belgian bar on atmospheric Ashton Lane, also serves food — good pre-whisky dinner option',
+    link: 'https://maps.google.com/?cid=14076958046637667775',
+    linkText: 'Open in Google Maps'
+  },
+  {
+    cat: 'food',
+    lat: 55.87492, lng: -4.29319,
+    icon: wkIcon('#2a8a5c','🍽'),
+    title: 'Ubiquitous Chip',
+    type: 'Restaurant — Tuesday evening',
+    typeColor: '#2a8a5c',
+    body: '12 Ashton Lane, Glasgow G12 8SJ<br>⭐ 4.5 · Glasgow institution, modern Scottish cuisine — book ahead',
+    link: 'https://maps.google.com/?cid=2319610124898746433',
+    linkText: 'Open in Google Maps'
+  },
+  {
+    cat: 'food',
+    lat: 55.87441, lng: -4.29483,
+    icon: wkIcon('#2a8a5c','🍽'),
+    title: 'La Vita Spuntini',
+    type: 'Restaurant — Tuesday evening',
+    typeColor: '#2a8a5c',
+    body: '199 Byres Road, Glasgow G12 8TN<br>⭐ 4.3 · Lively Italian, great pizza and pasta, no booking needed',
+    link: 'https://maps.google.com/?cid=14267695571523634077',
+    linkText: 'Open in Google Maps'
+  },
+  {
+    cat: 'food',
+    lat: 55.87701, lng: -4.29132,
+    icon: wkIcon('#2a8a5c','🍽'),
+    title: 'Six by Nico',
+    type: 'Restaurant — Tuesday evening',
+    typeColor: '#2a8a5c',
+    body: '358 Byres Road, Glasgow G12 8AW<br>⭐ 4.5 · Tasting menu concept, opens 14:30 on Tue — book in advance',
+    link: 'https://maps.google.com/?cid=14084684987297718104',
+    linkText: 'Open in Google Maps'
+  }
+];
+
+// ── Create markers ───────────────────────────────────────
+const wkLayers = { venue: [], accomm: [], pub: [], food: [] };
+
+wkPlaces.forEach(p => {
+  const marker = L.marker([p.lat, p.lng], { icon: p.icon });
+  marker.bindPopup(`
+    <div class="wk-popup">
+      <span class="wk-pop-type" style="color:${p.typeColor}">${p.type}</span>
+      <h4>${p.title}</h4>
+      <p>${p.body}</p>
+      <a href="${p.link}" target="_blank" rel="noopener">${p.linkText} ↗</a>
+    </div>`, { maxWidth: 260 });
+  marker.addTo(wkMap);
+  wkLayers[p.cat].push(marker);
+});
+
+// ── Walking route: accommodation → venue ─────────────────
+// Approximate path via Botanic Gardens and Byres Road
+const wkWalkPath = [
+  [55.8845, -4.2972], // Queen Margaret Residences
+  [55.8838, -4.2958], // into Botanic Gardens area
+  [55.8820, -4.2948], // through Botanic Gardens
+  [55.8800, -4.2950], // Great Western Road crossing
+  [55.8785, -4.2950], // Byres Road heading south
+  [55.8765, -4.2948], // Byres Road / University Ave junction
+  [55.8745, -4.2940], // University Avenue
+  [55.8730, -4.2910], // approaching venue
+  [55.8720, -4.2893]  // Joseph Black Building
+];
+
+const wkWalkLine = L.polyline(wkWalkPath, {
+  color: '#7068cc',
+  weight: 2.5,
+  opacity: 0.5,
+  dashArray: '6, 6'
+}).addTo(wkMap);
+
+wkWalkLine.bindTooltip('~20 min walk via Botanic Gardens &amp; Byres Road', {
+  permanent: false, direction: 'center'
+});
+
+// ── Filter toggle ────────────────────────────────────────
+const wkCatState = { venue: true, accomm: true, pub: true, food: true };
+
+function wkToggleCat(cat, btn) {
+  wkCatState[cat] = !wkCatState[cat];
+  btn.classList.toggle('wk-on', wkCatState[cat]);
+  wkLayers[cat].forEach(m => {
+    if (wkCatState[cat]) m.addTo(wkMap); else wkMap.removeLayer(m);
+  });
+}
+</script>
+
+</body>
+</html>
     <!----
 <p>Talks will be held in    <a href="https://www.uoecollection.com/conferences-events/venue-hubs/pollock-estate/st-leonards-hall/"> St Leonard's Hall.</a> </p>
     <img class="center" src="assets/uoe_pollock_stleonards-ext.jpg" 
