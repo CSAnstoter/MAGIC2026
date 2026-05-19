@@ -49,11 +49,7 @@
     <h2>Venue</h2>
     <p>
 MAGIC 2026 will be hosted at the University of Glasgow in the West End of Glasgow. 
-<br>
- <br>
-There are convenient transport links including buses and trains into the city from the airport or a 20 minute journey by taxi.
-<br> <br>
-        Talks will be in the Joseph Black Building (School of Chemistry).<br><br>
+
     </p>
 
 <!DOCTYPE html>
@@ -832,7 +828,139 @@ function wkToggleCard(id) {
 </body>
 </html>
     
-    
+
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Accommodation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── Scoped to .wk-accomm — safe to drop into any page ── */
+.wk-accomm {
+  font-family: system-ui, -apple-system, sans-serif;
+  max-width: 780px;
+  margin: 0 auto;
+  color: #1a1a1a;
+}
+.wk-accomm h2 {
+  font-family: 'Lora', Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin: 0 0 0.4rem;
+  color: #111;
+}
+.wk-accomm-subtitle {
+  font-size: 14px;
+  color: #555;
+  margin: 0 0 1.5rem;
+}
+.wk-accomm-subtitle a {
+  color: #2a6049;
+  text-decoration: none;
+}
+.wk-accomm-subtitle a:hover { text-decoration: underline; }
+.wk-accomm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+  margin-bottom: 1.25rem;
+}
+.wk-accomm-card {
+  background: #faf9f6;
+  border: 1px solid #e0ddd6;
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+.wk-accomm-card-icon { font-size: 20px; margin-bottom: 8px; display: block; }
+.wk-accomm-card-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #aaa;
+  margin-bottom: 3px;
+}
+.wk-accomm-card-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111;
+  line-height: 1.4;
+}
+.wk-accomm-card-sub {
+  font-size: 12px;
+  color: #666;
+  margin-top: 2px;
+  font-family: 'DM Mono', monospace;
+}
+.wk-accomm-address {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: #f0ede6;
+  border-radius: 6px;
+  font-family: 'DM Mono', monospace;
+  font-size: 12.5px;
+  color: #3a3830;
+  text-decoration: none;
+  border: 1px solid #ddd9d0;
+  transition: background 0.15s;
+}
+.wk-accomm-address:hover { background: #e6e2d8; }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════
+     Drop .wk-accomm + the <style> block into
+     your page wherever needed.
+════════════════════════════════════════════ -->
+
+<div class="wk-accomm">
+
+  <h2>Accommodation</h2>
+  <p class="wk-accomm-subtitle">
+    Workshop accommodation is at <strong>Queen Margaret Residences</strong>, University of Glasgow — a 20-minute walk from the Joseph Black Building via the Botanic Gardens and Byres Road.
+  </p>
+
+  <div class="wk-accomm-grid">
+    <div class="wk-accomm-card">
+      <span class="wk-accomm-card-icon">🕑</span>
+      <div class="wk-accomm-card-label">Check-in</div>
+      <div class="wk-accomm-card-value">From 14:00</div>
+      <div class="wk-accomm-card-sub">Monday</div>
+    </div>
+    <div class="wk-accomm-card">
+      <span class="wk-accomm-card-icon">🕙</span>
+      <div class="wk-accomm-card-label">Check-out</div>
+      <div class="wk-accomm-card-value">By 10:00</div>
+      <div class="wk-accomm-card-sub">Friday</div>
+    </div>
+    <div class="wk-accomm-card">
+      <span class="wk-accomm-card-icon">🛏️</span>
+      <div class="wk-accomm-card-label">Room type</div>
+      <div class="wk-accomm-card-value">Single occupancy</div>
+      <div class="wk-accomm-card-sub">En-suite bathroom</div>
+    </div>
+    <div class="wk-accomm-card">
+      <span class="wk-accomm-card-icon">🚗</span>
+      <div class="wk-accomm-card-label">Parking</div>
+      <div class="wk-accomm-card-value">On-site</div>
+      <div class="wk-accomm-card-sub">First come, first served</div>
+    </div>
+  </div>
+
+  <a class="wk-accomm-address" href="https://maps.google.com/?q=Queen+Margaret+Residences,+Bellshaugh+Court,+Glasgow+G12+0PR" target="_blank" rel="noopener">
+    📍 Bellshaugh Court, Kirklee, Glasgow G12 0PR &nbsp;↗
+  </a>
+
+</div>
+
+</body>
+</html>
     
 
 
