@@ -96,6 +96,8 @@ MAGIC 2026 will be hosted at the University of Glasgow in the West End of Glasgo
 .wk-filter-btn[data-cat="accomm"].wk-on  { background: #7068cc; border-color: #7068cc; }
 .wk-filter-btn[data-cat="pub"].wk-on     { background: #c9861a; border-color: #c9861a; }
 .wk-filter-btn[data-cat="food"].wk-on    { background: #2a8a5c; border-color: #2a8a5c; }
+.wk-filter-btn[data-cat="dinner"].wk-on  { background: #c05080; border-color: #c05080; }
+.wk-filter-btn[data-cat="vegan"].wk-on   { background: #5a9420; border-color: #5a9420; }
 
 /* Map container */
 #wk-leaflet-map {
@@ -163,6 +165,8 @@ MAGIC 2026 will be hosted at the University of Glasgow in the West End of Glasgo
     <button class="wk-filter-btn wk-on" data-cat="accomm" onclick="wkToggleCat('accomm',this)">🏠 Accommodation</button>
     <button class="wk-filter-btn wk-on" data-cat="pub"    onclick="wkToggleCat('pub',this)">🍺 Pubs</button>
     <button class="wk-filter-btn wk-on" data-cat="food"   onclick="wkToggleCat('food',this)">🍽 Restaurants</button>
+    <button class="wk-filter-btn wk-on" data-cat="dinner" onclick="wkToggleCat('dinner',this)">🥂 Conference dinner</button>
+    <button class="wk-filter-btn wk-on" data-cat="vegan"  onclick="wkToggleCat('vegan',this)">🌱 Vegan / Veggie</button>
   </div>
 
   <div id="wk-leaflet-map"></div>
@@ -293,11 +297,76 @@ const wkPlaces = [
     body: '358 Byres Road, Glasgow G12 8AW<br>⭐ 4.5 · Tasting menu concept, opens 14:30 on Tue — book in advance',
     link: 'https://maps.google.com/?cid=14084684987297718104',
     linkText: 'Open in Google Maps'
+  },
+  {
+    cat: 'food',
+    lat: 55.8728754, lng: -4.296019,
+    icon: wkIcon('#2a8a5c','🍽'),
+    title: 'Ting Thai',
+    type: 'Restaurant — Tuesday evening',
+    typeColor: '#2a8a5c',
+    body: '94 Byres Road, Glasgow G12 8TB<br>⭐ 4.2 · Authentic Thai, generous portions, great value — plenty of vegan &amp; veggie options',
+    link: 'https://maps.google.com/?cid=ChIJlQb_NqNFiEgRxG-veGcx7Ok',
+    linkText: 'Open in Google Maps'
+  },
+  {
+    cat: 'food',
+    lat: 55.8714338, lng: -4.298459,
+    icon: wkIcon('#2a8a5c','🍽'),
+    title: 'Massawa',
+    type: 'Restaurant — Tuesday evening',
+    typeColor: '#2a8a5c',
+    body: '53 Byres Road, Glasgow G11 5RG<br>⭐ 4.9 · Eritrean/Ethiopian sharing platters — outstanding vegan platter available',
+    link: 'https://maps.google.com/?cid=ChIJXfmdxURFiEgRgth2ewPa5mA',
+    linkText: 'Open in Google Maps'
+  },
+  {
+    cat: 'dinner',
+    lat: 55.8753694, lng: -4.2944528,
+    icon: wkIcon('#c05080','🥂'),
+    title: 'The Bothy',
+    type: 'Conference dinner — Wednesday 18:45',
+    typeColor: '#c05080',
+    body: '11 Ruthven Lane, Glasgow G12 9BG<br>⭐ 4.6 · Traditional Scottish cuisine, warm atmosphere — just off Byres Road opposite Ashton Lane',
+    link: 'https://maps.google.com/?cid=ChIJI7LLHM9FiEgRHa_adNMc8Y4',
+    linkText: 'Open in Google Maps'
+  },
+  {
+    cat: 'vegan',
+    lat: 55.875717, lng: -4.29339,
+    icon: wkIcon('#5a9420','🌱'),
+    title: 'Taco Mazama',
+    type: 'Vegan / Veggie friendly',
+    typeColor: '#5a9420',
+    body: '263 Byres Road, Glasgow G12 8TL<br>⭐ 4.1 · Mexican burritos and tacos with extensive vegan &amp; veggie options — great value, on Byres Road',
+    link: 'https://maps.google.com/?cid=ChIJPbJK8M5FiEgR9efuD8HlDJs',
+    linkText: 'Open in Google Maps'
+  },
+  {
+    cat: 'vegan',
+    lat: 55.8728754, lng: -4.296022,
+    icon: wkIcon('#5a9420','🌱'),
+    title: 'Ting Thai',
+    type: 'Vegan / Veggie friendly',
+    typeColor: '#5a9420',
+    body: '94 Byres Road, Glasgow G12 8TB<br>⭐ 4.2 · Thai menu with many vegan &amp; veggie dishes — clearly labelled on the menu',
+    link: 'https://maps.google.com/?cid=ChIJlQb_NqNFiEgRxG-veGcx7Ok',
+    linkText: 'Open in Google Maps'
+  },
+  {
+    cat: 'vegan',
+    lat: 55.8714, lng: -4.298552,
+    icon: wkIcon('#5a9420','🌱'),
+    title: 'Massawa',
+    type: 'Vegan / Veggie friendly',
+    typeColor: '#5a9420',
+    body: '53 Byres Road, Glasgow G11 5RG<br>⭐ 4.9 · Dedicated vegan sharing platter — one of the best-rated restaurants on Byres Road',
+    link: 'https://maps.google.com/?cid=ChIJXfmdxURFiEgRgth2ewPa5mA',
+    linkText: 'Open in Google Maps'
   }
-];
 
 // ── Create markers ───────────────────────────────────────
-const wkLayers = { venue: [], accomm: [], pub: [], food: [] };
+const wkLayers = { venue: [], accomm: [], pub: [], food: [], dinner: [], vegan: [] };
 
 wkPlaces.forEach(p => {
   const marker = L.marker([p.lat, p.lng], { icon: p.icon });
@@ -338,7 +407,7 @@ wkWalkLine.bindTooltip('~20 min walk via Botanic Gardens &amp; Byres Road', {
 });
 
 // ── Filter toggle ────────────────────────────────────────
-const wkCatState = { venue: true, accomm: true, pub: true, food: true };
+const wkCatState = { venue: true, accomm: true, pub: true, food: true, dinner: true, vegan: true };
 
 function wkToggleCat(cat, btn) {
   wkCatState[cat] = !wkCatState[cat];
