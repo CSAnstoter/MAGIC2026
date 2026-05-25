@@ -3,20 +3,53 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Workshop Venue Map</title>
+<title>Getting Here</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <style>
-/* ── Scoped to .wk-map-wrap ── */
-.wk-map-wrap {
+/* ── Scoped to .wk-getting-here — safe to drop into any page ── */
+.wk-getting-here {
   font-family: system-ui, -apple-system, sans-serif;
   max-width: 780px;
   margin: 0 auto;
   color: #1a1a1a;
+  line-height: 1.6;
 }
 
-/* Filter buttons */
+/* ── Intro ── */
+.wk-gh-intro {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1.5px solid #e0ddd6;
+}
+.wk-gh-intro h2 {
+  font-family: 'Lora', Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin: 0 0 0.6rem;
+  color: #111;
+}
+.wk-gh-intro p { font-size: 14px; color: #555; margin: 0 0 0.5rem; }
+.wk-gh-address {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 0.75rem;
+  padding: 8px 14px;
+  background: #f0ede6;
+  border-radius: 6px;
+  font-family: 'DM Mono', monospace;
+  font-size: 12.5px;
+  color: #3a3830;
+  text-decoration: none;
+  border: 1px solid #ddd9d0;
+  transition: background 0.15s;
+}
+.wk-gh-address:hover { background: #e6e2d8; }
+
+/* ── Map ── */
+.wk-map-wrap { margin-bottom: 2rem; }
 .wk-map-filters {
   display: flex;
   flex-wrap: wrap;
@@ -26,26 +59,21 @@
 .wk-filter-btn {
   padding: 5px 13px;
   border-radius: 20px;
-  border: 1.5px solid transparent;
+  border: 1.5px solid #ddd9d0;
   font-size: 12.5px;
   font-family: 'DM Mono', monospace;
   cursor: pointer;
   transition: all 0.15s;
   background: #f5f3ef;
   color: #555;
-  border-color: #ddd9d0;
 }
-.wk-filter-btn.wk-on {
-  color: #fff;
-}
+.wk-filter-btn.wk-on { color: #fff; }
 .wk-filter-btn[data-cat="venue"].wk-on    { background: #2e7fc0; border-color: #2e7fc0; }
 .wk-filter-btn[data-cat="accomm"].wk-on  { background: #7068cc; border-color: #7068cc; }
 .wk-filter-btn[data-cat="pub"].wk-on     { background: #c9861a; border-color: #c9861a; }
 .wk-filter-btn[data-cat="food"].wk-on    { background: #2a8a5c; border-color: #2a8a5c; }
 .wk-filter-btn[data-cat="dinner"].wk-on  { background: #c05080; border-color: #c05080; }
 .wk-filter-btn[data-cat="vegan"].wk-on   { background: #5a9420; border-color: #5a9420; }
-
-/* Map container */
 #wk-leaflet-map {
   width: 100%;
   height: 460px;
@@ -54,8 +82,13 @@
   overflow: hidden;
   z-index: 0;
 }
-
-/* Popup overrides */
+.wk-map-note {
+  font-size: 12px;
+  color: #888;
+  font-family: 'DM Mono', monospace;
+  margin-top: 0.6rem;
+  letter-spacing: 0.01em;
+}
 .wk-popup { min-width: 200px; }
 .wk-popup h4 {
   font-family: 'Lora', Georgia, serif;
@@ -72,57 +105,325 @@
   margin-bottom: 5px;
   display: block;
 }
-.wk-popup p {
-  font-size: 12.5px;
-  color: #444;
-  margin: 0 0 3px;
-  line-height: 1.5;
-}
-.wk-popup a {
-  font-size: 12px;
-  color: #2e7fc0;
-  text-decoration: none;
-}
+.wk-popup p { font-size: 12.5px; color: #444; margin: 0 0 3px; line-height: 1.5; }
+.wk-popup a { font-size: 12px; color: #2e7fc0; text-decoration: none; }
 .wk-popup a:hover { text-decoration: underline; }
 
-/* Map note */
-.wk-map-note {
-  font-size: 12px;
-  color: #888;
+/* ── Section cards ── */
+.wk-gh-sections { display: flex; flex-direction: column; gap: 1.25rem; }
+.wk-gh-card { border: 1px solid #e0ddd6; border-radius: 10px; overflow: hidden; }
+.wk-gh-card-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  background: #faf9f6;
+  border-bottom: 1px solid #e0ddd6;
+  cursor: pointer;
+  user-select: none;
+}
+.wk-gh-card.wk-open .wk-gh-card-head { border-bottom-color: #e0ddd6; }
+.wk-gh-icon {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.wk-gh-card-title { flex: 1; }
+.wk-gh-card-title h3 {
+  font-family: 'Lora', Georgia, serif;
+  font-size: 1rem; font-weight: 500;
+  margin: 0 0 1px; color: #111;
+}
+.wk-gh-card-title p {
   font-family: 'DM Mono', monospace;
-  margin-top: 0.6rem;
-  letter-spacing: 0.01em;
+  font-size: 11px; color: #888; margin: 0; letter-spacing: 0.02em;
+}
+.wk-gh-chevron {
+  font-size: 14px; color: #aaa;
+  transition: transform 0.2s;
+  font-family: 'DM Mono', monospace;
+}
+.wk-gh-card.wk-open .wk-gh-chevron { transform: rotate(180deg); }
+.wk-gh-card-body { display: none; padding: 18px 20px 20px; font-size: 14px; color: #333; }
+.wk-gh-card.wk-open .wk-gh-card-body { display: block; }
+
+/* ── Steps ── */
+.wk-steps {
+  list-style: none; padding: 0; margin: 0 0 1rem;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.wk-step { display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: start; }
+.wk-step-num {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: #2a6049; color: #fff;
+  font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+}
+.wk-step-text { font-size: 13.5px; line-height: 1.55; color: #222; }
+.wk-step-text strong { font-weight: 500; color: #111; }
+.wk-pill {
+  display: inline-block;
+  font-family: 'DM Mono', monospace; font-size: 11px;
+  padding: 1px 7px; border-radius: 12px;
+  margin-left: 4px; vertical-align: middle;
+}
+.wk-pill-time  { background: #e8f3fb; color: #1a5a90; }
+.wk-pill-cost  { background: #eef6e4; color: #3a6810; }
+.wk-pill-freq  { background: #efeefc; color: #4840a0; }
+
+/* ── Tip box ── */
+.wk-tip {
+  background: #fdf5e6; border-left: 3px solid #c9861a;
+  border-radius: 0 6px 6px 0; padding: 9px 13px;
+  font-size: 13px; color: #5a3800; margin-top: 1rem; line-height: 1.5;
+}
+.wk-tip strong { color: #3d2200; }
+
+/* ── Alt route ── */
+.wk-alt { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px dashed #ddd9d0; }
+.wk-alt-label {
+  font-family: 'DM Mono', monospace; font-size: 10.5px;
+  letter-spacing: 0.07em; text-transform: uppercase; color: #aaa; margin-bottom: 6px;
+}
+.wk-alt p { font-size: 13px; color: #444; margin: 0; line-height: 1.55; }
+
+/* ── Subway callout ── */
+.wk-subway-box {
+  background: #f5f3ef; border: 1px solid #e0ddd6;
+  border-radius: 8px; padding: 12px 16px; margin: 1rem 0;
+}
+.wk-subway-box .wk-subway-head {
+  font-family: 'Lora', Georgia, serif; font-size: 13.5px;
+  font-weight: 500; color: #111; margin-bottom: 6px;
+}
+.wk-subway-box p { font-size: 13px; color: #444; margin: 0 0 5px; line-height: 1.55; }
+.wk-subway-box p:last-child { margin: 0; }
+
+/* ── Walk note ── */
+.wk-walk-note {
+  display: flex; align-items: start; gap: 10px;
+  background: #edf7f0; border-radius: 8px; padding: 11px 14px;
+  margin-top: 1rem; font-size: 13px; color: #0d3d24; line-height: 1.5;
+}
+.wk-walk-icon { font-size: 20px; flex-shrink: 0; margin-top: -1px; }
+
+@media (max-width: 480px) {
+  .wk-gh-card-body { padding: 14px 14px 16px; }
+  .wk-gh-card-head { padding: 12px 14px; }
 }
 </style>
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════
-     DROP THIS .wk-map-wrap DIV INTO YOUR PAGE
-     (along with the <style>, Leaflet CSS link,
-      Leaflet JS script, and the inline <script>)
-═══════════════════════════════════════════════ -->
+<div class="wk-getting-here">
 
-<div class="wk-map-wrap">
-
-  <!-- Category filters -->
-  <div class="wk-map-filters" role="group" aria-label="Filter map markers">
-    <button class="wk-filter-btn wk-on" data-cat="venue"  onclick="wkToggleCat('venue',this)">🏛 Venue</button>
-    <button class="wk-filter-btn wk-on" data-cat="accomm" onclick="wkToggleCat('accomm',this)">🏠 Accommodation</button>
-    <button class="wk-filter-btn wk-on" data-cat="pub"    onclick="wkToggleCat('pub',this)">🍺 Pubs</button>
-    <button class="wk-filter-btn wk-on" data-cat="food"   onclick="wkToggleCat('food',this)">🍽 Restaurants</button>
-    <button class="wk-filter-btn wk-on" data-cat="dinner" onclick="wkToggleCat('dinner',this)">🥂 Conference dinner</button>
-    <button class="wk-filter-btn wk-on" data-cat="vegan"  onclick="wkToggleCat('vegan',this)">🌱 Vegan / Veggie</button>
+  <!-- ── Intro ── -->
+  <div class="wk-gh-intro">
+    <h2>Getting here</h2>
+    <p>The workshop is held at the <strong>Joseph Black Building</strong>, home of the School of Chemistry at the University of Glasgow. The building sits on the main Gilmorehill campus in the heart of Glasgow's West End.</p>
+    <a class="wk-gh-address" href="https://maps.google.com/?q=Joseph+Black+Building,+University+Place,+Glasgow+G12+8QQ" target="_blank" rel="noopener">
+      📍 University Place, Glasgow G12 8QQ &nbsp;↗
+    </a>
   </div>
 
-  <div id="wk-leaflet-map"></div>
-  <p class="wk-map-note">Click any marker for details · Walk from accommodation to venue ~20 min via Botanic Gardens &amp; Byres Road</p>
+  <!-- ── Map ── -->
+  <div class="wk-map-wrap">
+    <div class="wk-map-filters" role="group" aria-label="Filter map markers">
+      <button class="wk-filter-btn wk-on" data-cat="venue"  onclick="wkToggleCat('venue',this)">🏛 Venue</button>
+      <button class="wk-filter-btn wk-on" data-cat="accomm" onclick="wkToggleCat('accomm',this)">🏠 Accommodation</button>
+      <button class="wk-filter-btn wk-on" data-cat="pub"    onclick="wkToggleCat('pub',this)">🍺 Pubs</button>
+      <button class="wk-filter-btn wk-on" data-cat="food"   onclick="wkToggleCat('food',this)">🍽 Restaurants</button>
+      <button class="wk-filter-btn wk-on" data-cat="dinner" onclick="wkToggleCat('dinner',this)">🥂 Conference dinner</button>
+      <button class="wk-filter-btn wk-on" data-cat="vegan"  onclick="wkToggleCat('vegan',this)">🌱 Vegan / Veggie</button>
+    </div>
+    <div id="wk-leaflet-map"></div>
+    <p class="wk-map-note">Click any marker for details · Walk from accommodation to venue ~20 min via Botanic Gardens &amp; Byres Road</p>
+  </div>
 
-</div><!-- end .wk-map-wrap -->
+  <!-- ── Travel sections ── -->
+  <div class="wk-gh-sections">
+
+    <!-- Glasgow Airport -->
+    <div class="wk-gh-card wk-open" id="wk-card-gla">
+      <div class="wk-gh-card-head" onclick="wkToggleCard('gla')">
+        <div class="wk-gh-icon" style="background:#e8f3fb">✈️</div>
+        <div class="wk-gh-card-title">
+          <h3>From Glasgow Airport (GLA)</h3>
+          <p>Recommended: bus + subway · ~45–50 min total</p>
+        </div>
+        <span class="wk-gh-chevron">▾</span>
+      </div>
+      <div class="wk-gh-card-body">
+        <ol class="wk-steps">
+          <li class="wk-step">
+            <div class="wk-step-num">1</div>
+            <div class="wk-step-text">Outside Arrivals, take the <strong>Glasgow Airport Express (bus 500)</strong> to <strong>Buchanan Bus Station</strong> in the city centre.
+              <span class="wk-pill wk-pill-freq">every 10 min</span>
+              <span class="wk-pill wk-pill-time">~25 min</span>
+              <span class="wk-pill wk-pill-cost">~£8</span>
+            </div>
+          </li>
+          <li class="wk-step">
+            <div class="wk-step-num">2</div>
+            <div class="wk-step-text">From Buchanan Bus Station, walk 5 minutes to <strong>Buchanan Street Subway Station</strong> (follow signs for the Subway / SPT Underground).</div>
+          </li>
+          <li class="wk-step">
+            <div class="wk-step-num">3</div>
+            <div class="wk-step-text">Take the subway <strong>Inner Circle</strong> to <strong>Hillhead</strong> — three stops.
+              <span class="wk-pill wk-pill-time">~8 min</span>
+              <span class="wk-pill wk-pill-cost">~£1.80</span>
+            </div>
+          </li>
+          <li class="wk-step">
+            <div class="wk-step-num">4</div>
+            <div class="wk-step-text">Exit Hillhead station onto Byres Road and walk <strong>4 minutes</strong> south along University Avenue to the Joseph Black Building entrance on University Place.</div>
+          </li>
+        </ol>
+        <div class="wk-tip">
+          <strong>Tip:</strong> First Bus route 77 also runs directly from the airport to the West End and stops near the venue — useful if you have heavy luggage — but runs less frequently than the 500/subway combination.
+        </div>
+        <div class="wk-alt">
+          <div class="wk-alt-label">By taxi</div>
+          <p>A taxi direct from Glasgow Airport to the Joseph Black Building takes around 15 minutes in normal traffic and costs approximately <strong>£20–25</strong>. Taxis are available from the rank immediately outside Arrivals.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edinburgh Airport -->
+    <div class="wk-gh-card" id="wk-card-edi">
+      <div class="wk-gh-card-head" onclick="wkToggleCard('edi')">
+        <div class="wk-gh-icon" style="background:#fdf5e6">✈️</div>
+        <div class="wk-gh-card-title">
+          <h3>From Edinburgh Airport (EDI)</h3>
+          <p>Tram to Waverley, then train to Glasgow · ~1 hr 45 min total</p>
+        </div>
+        <span class="wk-gh-chevron">▾</span>
+      </div>
+      <div class="wk-gh-card-body">
+        <ol class="wk-steps">
+          <li class="wk-step">
+            <div class="wk-step-num">1</div>
+            <div class="wk-step-text">Follow signs to the <strong>Edinburgh Tram</strong> from inside the terminal. Take the tram to <strong>Edinburgh Waverley</strong> (end of the line, St Andrew Square stop — short walk to Waverley station).
+              <span class="wk-pill wk-pill-freq">every 7–8 min</span>
+              <span class="wk-pill wk-pill-time">~35 min</span>
+            </div>
+          </li>
+          <li class="wk-step">
+            <div class="wk-step-num">2</div>
+            <div class="wk-step-text">From <strong>Edinburgh Waverley</strong>, take a <strong>ScotRail train to Glasgow Queen Street</strong>. Services run very frequently throughout the day.
+              <span class="wk-pill wk-pill-freq">up to 4 per hour</span>
+              <span class="wk-pill wk-pill-time">~50 min</span>
+            </div>
+          </li>
+          <li class="wk-step">
+            <div class="wk-step-num">3</div>
+            <div class="wk-step-text">From Glasgow Queen Street, walk 5 minutes to <strong>Buchanan Street Subway Station</strong>, then take the <strong>Inner Circle</strong> to <strong>Hillhead</strong> (three stops).
+              <span class="wk-pill wk-pill-time">~10 min</span>
+            </div>
+          </li>
+          <li class="wk-step">
+            <div class="wk-step-num">4</div>
+            <div class="wk-step-text">Walk <strong>4 minutes</strong> from Hillhead subway station to the Joseph Black Building on University Place.</div>
+          </li>
+        </ol>
+        <div class="wk-tip">
+          <strong>Combined tram + train tickets</strong> for the Edinburgh Airport → Waverley leg can be bought at vending machines in the check-in hall, at the tram stop, or online. ScotRail advance fares are cheapest when booked ahead at <a href="https://www.scotrail.co.uk" target="_blank" rel="noopener" style="color:#1a5a90">scotrail.co.uk</a>.
+        </div>
+        <div class="wk-alt">
+          <div class="wk-alt-label">By direct coach</div>
+          <p><strong>Scottish Citylink</strong> runs a direct coach from Edinburgh Airport to Buchanan Bus Station, Glasgow.
+          <span class="wk-pill wk-pill-time" style="margin-left:0">~1 hr 10 min</span>
+          <span class="wk-pill wk-pill-cost">~£10–15</span> — then follow subway steps above. Book at <a href="https://www.citylink.co.uk" target="_blank" rel="noopener" style="color:#1a5a90">citylink.co.uk</a>.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- By Train -->
+    <div class="wk-gh-card" id="wk-card-train">
+      <div class="wk-gh-card-head" onclick="wkToggleCard('train')">
+        <div class="wk-gh-icon" style="background:#edf7f0">🚆</div>
+        <div class="wk-gh-card-title">
+          <h3>By train</h3>
+          <p>Glasgow Queen Street or Glasgow Central, then subway to Hillhead</p>
+        </div>
+        <span class="wk-gh-chevron">▾</span>
+      </div>
+      <div class="wk-gh-card-body">
+        <p style="font-size:13.5px;margin:0 0 1rem;color:#333">Glasgow has two main train stations. Which you arrive at depends on your origin — check your ticket. Both are a short subway ride from the venue.</p>
+        <div class="wk-subway-box">
+          <div class="wk-subway-head">🟠 The Glasgow Subway</div>
+          <p>Glasgow's subway — affectionately known as <em>the Clockwork Orange</em> — is a simple circular underground railway with 15 stations. There is one line running two directions: <strong>Inner Circle</strong> (clockwise) and <strong>Outer Circle</strong> (anticlockwise). Trains run every few minutes. A single fare is approximately <strong>£1.80</strong>. Tap-in contactless payment is accepted.</p>
+          <p>The stop for the Joseph Black Building is <strong>Hillhead</strong> — a 4-minute walk from the venue.</p>
+        </div>
+        <p style="font-size:13px;font-weight:500;margin:1rem 0 0.5rem;color:#111">Arriving at Glasgow Queen Street</p>
+        <ol class="wk-steps">
+          <li class="wk-step">
+            <div class="wk-step-num">1</div>
+            <div class="wk-step-text">Exit onto George Square, then walk 5 minutes to <strong>Buchanan Street Subway Station</strong> (well signposted).</div>
+          </li>
+          <li class="wk-step">
+            <div class="wk-step-num">2</div>
+            <div class="wk-step-text">Take the <strong>Inner Circle</strong> three stops to <strong>Hillhead</strong>: Buchanan Street → St George's Cross → Kelvinbridge → Hillhead.
+            <span class="wk-pill wk-pill-time">~8 min</span></div>
+          </li>
+          <li class="wk-step">
+            <div class="wk-step-num">3</div>
+            <div class="wk-step-text">Exit Hillhead station onto Byres Road, walk 4 minutes south on University Avenue to the Joseph Black Building.</div>
+          </li>
+        </ol>
+        <p style="font-size:13px;font-weight:500;margin:1.25rem 0 0.5rem;color:#111">Arriving at Glasgow Central</p>
+        <ol class="wk-steps">
+          <li class="wk-step">
+            <div class="wk-step-num">1</div>
+            <div class="wk-step-text">Exit onto Gordon Street and walk 5 minutes to <strong>St Enoch Subway Station</strong> (follow signs for the Underground / Subway).</div>
+          </li>
+          <li class="wk-step">
+            <div class="wk-step-num">2</div>
+            <div class="wk-step-text">Take the <strong>Outer Circle</strong> four stops to <strong>Hillhead</strong>: St Enoch → Buchanan Street → St George's Cross → Kelvinbridge → Hillhead.
+            <span class="wk-pill wk-pill-time">~10 min</span></div>
+          </li>
+          <li class="wk-step">
+            <div class="wk-step-num">3</div>
+            <div class="wk-step-text">Exit Hillhead station onto Byres Road, walk 4 minutes south on University Avenue to the Joseph Black Building.</div>
+          </li>
+        </ol>
+        <div class="wk-tip" style="margin-top:1.25rem">
+          <strong>Intercity connections:</strong> Frequent direct trains serve Glasgow from Edinburgh (~50 min), London Euston (~4.5 hrs via Avanti), and other UK cities. Book ScotRail services at <a href="https://www.scotrail.co.uk" target="_blank" rel="noopener" style="color:#5a3800;text-decoration:underline">scotrail.co.uk</a> and long-distance services at <a href="https://www.thetrainline.com" target="_blank" rel="noopener" style="color:#5a3800;text-decoration:underline">trainline.com</a>.
+        </div>
+      </div>
+    </div>
+
+    <!-- From Accommodation -->
+    <div class="wk-gh-card" id="wk-card-accomm">
+      <div class="wk-gh-card-head" onclick="wkToggleCard('accomm')">
+        <div class="wk-gh-icon" style="background:#eef6e4">🏠</div>
+        <div class="wk-gh-card-title">
+          <h3>From the workshop accommodation</h3>
+          <p>Queen Margaret Residences → Joseph Black Building · ~20 min walk</p>
+        </div>
+        <span class="wk-gh-chevron">▾</span>
+      </div>
+      <div class="wk-gh-card-body">
+        <p style="font-size:13.5px;margin:0 0 1rem;color:#333">Workshop accommodation is at <strong>Queen Margaret Residences</strong>, Bellshaugh Court, Kirklee, Glasgow G12 0PR — a pleasant 20-minute walk from the Joseph Black Building.</p>
+        <div class="wk-walk-note">
+          <span class="wk-walk-icon">🚶</span>
+          <span><strong>The recommended walking route</strong> takes you through the <strong>Glasgow Botanic Gardens</strong> and south along <strong>Byres Road</strong> — one of the West End's best-known streets, lined with cafés, bakeries, and shops. A lovely way to start the morning. Exit the residences onto Bellshaugh Road, head south through the Botanic Gardens entrance on Great Western Road, cross into the gardens and exit onto Byres Road. Follow Byres Road south to University Avenue, then turn left — the Joseph Black Building is on your right.</span>
+        </div>
+        <div class="wk-alt" style="margin-top:1.25rem">
+          <div class="wk-alt-label">By taxi</div>
+          <p>A taxi from the residences to the venue takes around 5 minutes and costs approximately <strong>£5–7</strong>.</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end .wk-gh-sections -->
+</div><!-- end .wk-getting-here -->
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-// ── Map initialisation ──────────────────────────────────
+// ── Map ──────────────────────────────────────────────────
 const wkMap = L.map('wk-leaflet-map', {
   center: [55.8780, -4.2930],
   zoom: 15,
@@ -134,226 +435,143 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19
 }).addTo(wkMap);
 
-// ── Custom marker factory ────────────────────────────────
 function wkIcon(color, emoji) {
   return L.divIcon({
     className: '',
-    html: `<div style="
-      background:${color};
-      width:34px;height:34px;
-      border-radius:50% 50% 50% 0;
-      transform:rotate(-45deg);
-      border:2px solid rgba(0,0,0,0.15);
-      box-shadow:0 2px 6px rgba(0,0,0,0.22);
-      display:flex;align-items:center;justify-content:center;">
-      <span style="transform:rotate(45deg);font-size:15px;line-height:1">${emoji}</span>
-    </div>`,
-    iconSize: [34, 34],
-    iconAnchor: [17, 34],
-    popupAnchor: [0, -36]
+    html: `<div style="background:${color};width:34px;height:34px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid rgba(0,0,0,0.15);box-shadow:0 2px 6px rgba(0,0,0,0.22);display:flex;align-items:center;justify-content:center;"><span style="transform:rotate(45deg);font-size:15px;line-height:1">${emoji}</span></div>`,
+    iconSize: [34, 34], iconAnchor: [17, 34], popupAnchor: [0, -36]
   });
 }
 
-// ── Place data ───────────────────────────────────────────
 const wkPlaces = [
   {
-    cat: 'venue',
-    lat: 55.8718, lng: -4.2927,
-    icon: wkIcon('#2e7fc0','🏛'),
-    title: 'Joseph Black Building',
-    type: 'Conference venue',
-    typeColor: '#2e7fc0',
+    cat: 'venue', lat: 55.8718, lng: -4.2927,
+    icon: wkIcon('#2e7fc0','🏛'), title: 'Joseph Black Building',
+    type: 'Conference venue', typeColor: '#2e7fc0',
     body: 'School of Chemistry, University of Glasgow<br>University Place, Glasgow G12 8QQ',
-    link: 'https://maps.google.com/?q=Joseph+Black+Building,+University+of+Glasgow',
-    linkText: 'Open in Google Maps'
+    link: 'https://maps.google.com/?q=Joseph+Black+Building,+University+of+Glasgow', linkText: 'Open in Google Maps'
   },
   {
-    cat: 'accomm',
-    lat: 55.8845, lng: -4.2972,
-    icon: wkIcon('#7068cc','🏠'),
-    title: 'Queen Margaret Residences',
-    type: 'Accommodation',
-    typeColor: '#7068cc',
+    cat: 'accomm', lat: 55.8845, lng: -4.2972,
+    icon: wkIcon('#7068cc','🏠'), title: 'Queen Margaret Residences',
+    type: 'Accommodation', typeColor: '#7068cc',
     body: 'Bellshaugh Court, Kirklee, Glasgow G12 0PR<br>~20 min walk to venue via Botanic Gardens &amp; Byres Road',
-    link: 'https://maps.google.com/?q=Queen+Margaret+Residences+Glasgow',
-    linkText: 'Open in Google Maps'
+    link: 'https://maps.google.com/?q=Queen+Margaret+Residences+Glasgow', linkText: 'Open in Google Maps'
   },
   {
-    cat: 'pub',
-    lat: 55.87300, lng: -4.29641,
-    icon: wkIcon('#c9861a','🍺'),
-    title: 'The Aragon Bar',
-    type: 'Pub — Monday suggestion',
-    typeColor: '#c9861a',
+    cat: 'pub', lat: 55.87300, lng: -4.29641,
+    icon: wkIcon('#c9861a','🍺'), title: 'The Aragon Bar',
+    type: 'Pub — Monday suggestion', typeColor: '#c9861a',
     body: '131 Byres Road, Glasgow G12 8TT<br>⭐ 4.5 · Classic West End local, great atmosphere, well-priced pints',
-    link: 'https://maps.google.com/?cid=3262231586357684835',
-    linkText: 'Open in Google Maps'
+    link: 'https://maps.google.com/?cid=3262231586357684835', linkText: 'Open in Google Maps'
   },
   {
-    cat: 'pub',
-    lat: 55.87422, lng: -4.29510,
-    icon: wkIcon('#c9861a','🍺'),
-    title: "Tennent's",
-    type: 'Pub — Monday suggestion',
-    typeColor: '#c9861a',
+    cat: 'pub', lat: 55.87422, lng: -4.29510,
+    icon: wkIcon('#c9861a','🍺'), title: "Tennent's",
+    type: 'Pub — Monday suggestion', typeColor: '#c9861a',
     body: '191 Byres Road, Glasgow G12 8TN<br>⭐ 4.4 · Large, easy to accommodate groups, excellent cask ale selection',
-    link: 'https://maps.google.com/?cid=4315670359554874060',
-    linkText: 'Open in Google Maps'
+    link: 'https://maps.google.com/?cid=4315670359554874060', linkText: 'Open in Google Maps'
   },
   {
-    cat: 'pub',
-    lat: 55.87454, lng: -4.29307,
-    icon: wkIcon('#c9861a','🍺'),
-    title: 'Brel',
-    type: 'Pub &amp; restaurant — Monday / Tuesday',
-    typeColor: '#c9861a',
+    cat: 'pub', lat: 55.87454, lng: -4.29307,
+    icon: wkIcon('#c9861a','🍺'), title: 'Brel',
+    type: 'Pub &amp; restaurant — Monday / Tuesday', typeColor: '#c9861a',
     body: '37–43 Ashton Lane, Glasgow G12 8SJ<br>⭐ 4.0 · Belgian bar on atmospheric Ashton Lane, also serves food — good pre-whisky dinner option',
-    link: 'https://maps.google.com/?cid=14076958046637667775',
-    linkText: 'Open in Google Maps'
+    link: 'https://maps.google.com/?cid=14076958046637667775', linkText: 'Open in Google Maps'
   },
   {
-    cat: 'food',
-    lat: 55.87492, lng: -4.29319,
-    icon: wkIcon('#2a8a5c','🍽'),
-    title: 'Ubiquitous Chip',
-    type: 'Restaurant — Tuesday evening',
-    typeColor: '#2a8a5c',
+    cat: 'food', lat: 55.87492, lng: -4.29319,
+    icon: wkIcon('#2a8a5c','🍽'), title: 'Ubiquitous Chip',
+    type: 'Restaurant — Tuesday evening', typeColor: '#2a8a5c',
     body: '12 Ashton Lane, Glasgow G12 8SJ<br>⭐ 4.5 · Glasgow institution, modern Scottish cuisine — book ahead',
-    link: 'https://maps.google.com/?cid=2319610124898746433',
-    linkText: 'Open in Google Maps'
+    link: 'https://maps.google.com/?cid=2319610124898746433', linkText: 'Open in Google Maps'
   },
   {
-    cat: 'food',
-    lat: 55.87441, lng: -4.29483,
-    icon: wkIcon('#2a8a5c','🍽'),
-    title: 'La Vita Spuntini',
-    type: 'Restaurant — Tuesday evening',
-    typeColor: '#2a8a5c',
+    cat: 'food', lat: 55.87441, lng: -4.29483,
+    icon: wkIcon('#2a8a5c','🍽'), title: 'La Vita Spuntini',
+    type: 'Restaurant — Tuesday evening', typeColor: '#2a8a5c',
     body: '199 Byres Road, Glasgow G12 8TN<br>⭐ 4.3 · Lively Italian, great pizza and pasta, no booking needed',
-    link: 'https://maps.google.com/?cid=14267695571523634077',
-    linkText: 'Open in Google Maps'
+    link: 'https://maps.google.com/?cid=14267695571523634077', linkText: 'Open in Google Maps'
   },
   {
-    cat: 'food',
-    lat: 55.87701, lng: -4.29132,
-    icon: wkIcon('#2a8a5c','🍽'),
-    title: 'Six by Nico',
-    type: 'Restaurant — Tuesday evening',
-    typeColor: '#2a8a5c',
+    cat: 'food', lat: 55.87701, lng: -4.29132,
+    icon: wkIcon('#2a8a5c','🍽'), title: 'Six by Nico',
+    type: 'Restaurant — Tuesday evening', typeColor: '#2a8a5c',
     body: '358 Byres Road, Glasgow G12 8AW<br>⭐ 4.5 · Tasting menu concept, opens 14:30 on Tue — book in advance',
-    link: 'https://maps.google.com/?cid=14084684987297718104',
-    linkText: 'Open in Google Maps'
+    link: 'https://maps.google.com/?cid=14084684987297718104', linkText: 'Open in Google Maps'
   },
   {
-    cat: 'food',
-    lat: 55.8728754, lng: -4.296019,
-    icon: wkIcon('#2a8a5c','🍽'),
-    title: 'Ting Thai',
-    type: 'Restaurant — Tuesday evening',
-    typeColor: '#2a8a5c',
+    cat: 'food', lat: 55.8728754, lng: -4.296019,
+    icon: wkIcon('#2a8a5c','🍽'), title: 'Ting Thai',
+    type: 'Restaurant — Tuesday evening', typeColor: '#2a8a5c',
     body: '94 Byres Road, Glasgow G12 8TB<br>⭐ 4.2 · Authentic Thai, generous portions, great value — plenty of vegan &amp; veggie options',
-    link: 'https://maps.google.com/?cid=ChIJlQb_NqNFiEgRxG-veGcx7Ok',
-    linkText: 'Open in Google Maps'
+    link: 'https://maps.google.com/?cid=ChIJlQb_NqNFiEgRxG-veGcx7Ok', linkText: 'Open in Google Maps'
   },
   {
-    cat: 'food',
-    lat: 55.8714338, lng: -4.298459,
-    icon: wkIcon('#2a8a5c','🍽'),
-    title: 'Massawa',
-    type: 'Restaurant — Tuesday evening',
-    typeColor: '#2a8a5c',
+    cat: 'food', lat: 55.8714338, lng: -4.298459,
+    icon: wkIcon('#2a8a5c','🍽'), title: 'Massawa',
+    type: 'Restaurant — Tuesday evening', typeColor: '#2a8a5c',
     body: '53 Byres Road, Glasgow G11 5RG<br>⭐ 4.9 · Eritrean/Ethiopian sharing platters — outstanding vegan platter available',
-    link: 'https://maps.google.com/?cid=ChIJXfmdxURFiEgRgth2ewPa5mA',
-    linkText: 'Open in Google Maps'
+    link: 'https://maps.google.com/?cid=ChIJXfmdxURFiEgRgth2ewPa5mA', linkText: 'Open in Google Maps'
   },
   {
-    cat: 'dinner',
-    lat: 55.8753694, lng: -4.2944528,
-    icon: wkIcon('#c05080','🥂'),
-    title: 'The Bothy',
-    type: 'Conference dinner — Wednesday 18:45',
-    typeColor: '#c05080',
+    cat: 'dinner', lat: 55.8753694, lng: -4.2944528,
+    icon: wkIcon('#c05080','🥂'), title: 'The Bothy',
+    type: 'Conference dinner — Wednesday 18:45', typeColor: '#c05080',
     body: '11 Ruthven Lane, Glasgow G12 9BG<br>⭐ 4.6 · Traditional Scottish cuisine, warm atmosphere — just off Byres Road opposite Ashton Lane',
-    link: 'https://maps.google.com/?cid=ChIJI7LLHM9FiEgRHa_adNMc8Y4',
-    linkText: 'Open in Google Maps'
+    link: 'https://maps.google.com/?cid=ChIJI7LLHM9FiEgRHa_adNMc8Y4', linkText: 'Open in Google Maps'
   },
   {
-    cat: 'vegan',
-    lat: 55.875717, lng: -4.29339,
-    icon: wkIcon('#5a9420','🌱'),
-    title: 'Taco Mazama',
-    type: 'Vegan / Veggie friendly',
-    typeColor: '#5a9420',
+    cat: 'vegan', lat: 55.875717, lng: -4.29339,
+    icon: wkIcon('#5a9420','🌱'), title: 'Taco Mazama',
+    type: 'Vegan / Veggie friendly', typeColor: '#5a9420',
     body: '263 Byres Road, Glasgow G12 8TL<br>⭐ 4.1 · Mexican burritos and tacos with extensive vegan &amp; veggie options — great value, on Byres Road',
-    link: 'https://maps.google.com/?cid=ChIJPbJK8M5FiEgR9efuD8HlDJs',
-    linkText: 'Open in Google Maps'
+    link: 'https://maps.google.com/?cid=ChIJPbJK8M5FiEgR9efuD8HlDJs', linkText: 'Open in Google Maps'
   },
   {
-    cat: 'vegan',
-    lat: 55.8728754, lng: -4.296022,
-    icon: wkIcon('#5a9420','🌱'),
-    title: 'Ting Thai',
-    type: 'Vegan / Veggie friendly',
-    typeColor: '#5a9420',
+    cat: 'vegan', lat: 55.8728754, lng: -4.296022,
+    icon: wkIcon('#5a9420','🌱'), title: 'Ting Thai',
+    type: 'Vegan / Veggie friendly', typeColor: '#5a9420',
     body: '94 Byres Road, Glasgow G12 8TB<br>⭐ 4.2 · Thai menu with many vegan &amp; veggie dishes — clearly labelled on the menu',
-    link: 'https://maps.google.com/?cid=ChIJlQb_NqNFiEgRxG-veGcx7Ok',
-    linkText: 'Open in Google Maps'
+    link: 'https://maps.google.com/?cid=ChIJlQb_NqNFiEgRxG-veGcx7Ok', linkText: 'Open in Google Maps'
   },
   {
-    cat: 'vegan',
-    lat: 55.8714, lng: -4.298552,
-    icon: wkIcon('#5a9420','🌱'),
-    title: 'Massawa',
-    type: 'Vegan / Veggie friendly',
-    typeColor: '#5a9420',
+    cat: 'vegan', lat: 55.8714, lng: -4.298552,
+    icon: wkIcon('#5a9420','🌱'), title: 'Massawa',
+    type: 'Vegan / Veggie friendly', typeColor: '#5a9420',
     body: '53 Byres Road, Glasgow G11 5RG<br>⭐ 4.9 · Dedicated vegan sharing platter — one of the best-rated restaurants on Byres Road',
-    link: 'https://maps.google.com/?cid=ChIJXfmdxURFiEgRgth2ewPa5mA',
-    linkText: 'Open in Google Maps'
+    link: 'https://maps.google.com/?cid=ChIJXfmdxURFiEgRgth2ewPa5mA', linkText: 'Open in Google Maps'
   }
 ];
 
-// ── Create markers ───────────────────────────────────────
 const wkLayers = { venue: [], accomm: [], pub: [], food: [], dinner: [], vegan: [] };
 
 wkPlaces.forEach(p => {
   const marker = L.marker([p.lat, p.lng], { icon: p.icon });
-  marker.bindPopup(`
-    <div class="wk-popup">
-      <span class="wk-pop-type" style="color:${p.typeColor}">${p.type}</span>
-      <h4>${p.title}</h4>
-      <p>${p.body}</p>
-      <a href="${p.link}" target="_blank" rel="noopener">${p.linkText} ↗</a>
-    </div>`, { maxWidth: 260 });
+  marker.bindPopup(`<div class="wk-popup"><span class="wk-pop-type" style="color:${p.typeColor}">${p.type}</span><h4>${p.title}</h4><p>${p.body}</p><a href="${p.link}" target="_blank" rel="noopener">${p.linkText} ↗</a></div>`, { maxWidth: 260 });
   marker.addTo(wkMap);
   wkLayers[p.cat].push(marker);
 });
 
-// ── Walking route: accommodation → venue ─────────────────
-// Approximate path via Botanic Gardens and Byres Road
+// Walking route: accommodation → venue (corrected endpoint)
 const wkWalkPath = [
-  [55.8845, -4.2972], // Queen Margaret Residences
-  [55.8838, -4.2958], // into Botanic Gardens area
-  [55.8820, -4.2948], // through Botanic Gardens
-  [55.8800, -4.2950], // Great Western Road crossing
-  [55.8785, -4.2950], // Byres Road heading south
-  [55.8765, -4.2948], // Byres Road / University Ave junction
-  [55.8745, -4.2940], // University Avenue
-  [55.8730, -4.2910], // approaching venue
-  [55.8720, -4.2893]  // Joseph Black Building
+  [55.8845, -4.2972],
+  [55.8838, -4.2958],
+  [55.8820, -4.2948],
+  [55.8800, -4.2950],
+  [55.8785, -4.2950],
+  [55.8765, -4.2948],
+  [55.8745, -4.2940],
+  [55.8730, -4.2930],
+  [55.8718, -4.2927]  // Joseph Black Building — Chemistry Gate / University Place
 ];
 
-const wkWalkLine = L.polyline(wkWalkPath, {
-  color: '#7068cc',
-  weight: 2.5,
-  opacity: 0.5,
-  dashArray: '6, 6'
-}).addTo(wkMap);
-
-wkWalkLine.bindTooltip('~20 min walk via Botanic Gardens &amp; Byres Road', {
+L.polyline(wkWalkPath, {
+  color: '#7068cc', weight: 2.5, opacity: 0.5, dashArray: '6, 6'
+}).addTo(wkMap).bindTooltip('~20 min walk via Botanic Gardens &amp; Byres Road', {
   permanent: false, direction: 'center'
 });
 
-// ── Filter toggle ────────────────────────────────────────
 const wkCatState = { venue: true, accomm: true, pub: true, food: true, dinner: true, vegan: true };
 
 function wkToggleCat(cat, btn) {
@@ -362,6 +580,11 @@ function wkToggleCat(cat, btn) {
   wkLayers[cat].forEach(m => {
     if (wkCatState[cat]) m.addTo(wkMap); else wkMap.removeLayer(m);
   });
+}
+
+// ── Travel cards ─────────────────────────────────────────
+function wkToggleCard(id) {
+  document.getElementById('wk-card-' + id).classList.toggle('wk-open');
 }
 </script>
 
