@@ -48,108 +48,13 @@
     </table>
 
     <h2>Conference Program</h2>
-<p>An HTML version of the provisional program is below. <br> A downloadable pdf will be available closer to the time.</p>
-
-    
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MAGIC 2026 — Schedule</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Lora:wght@400;500&display=swap" rel="stylesheet">
-<style>
-/* ── Scoped to .wk-schedule — safe to drop into any page ── */
-.wk-schedule {
-  font-family: system-ui, -apple-system, sans-serif;
-  max-width: 780px;
-  margin: 0 auto;
-  color: #1a1a1a;
-}
-.wk-tabs {
-  display: flex; gap: 4px; flex-wrap: wrap;
-  margin-bottom: 1.5rem;
-  border-bottom: 1.5px solid #e0ddd6;
-}
-.wk-tab {
-  padding: 8px 18px 10px; border: none; background: none;
-  font-family: 'DM Mono', monospace; font-size: 13px; color: #888;
-  cursor: pointer; border-bottom: 2px solid transparent;
-  margin-bottom: -1.5px; transition: color 0.15s, border-color 0.15s;
-  letter-spacing: 0.03em;
-}
-.wk-tab:hover { color: #2a6049; }
-.wk-tab.wk-active { color: #2a6049; border-bottom-color: #2a6049; font-weight: 500; }
-
-.wk-day-header { margin-bottom: 1.25rem; }
-.wk-day-title { font-family: 'Lora', Georgia, serif; font-size: 1.35rem; font-weight: 500; margin: 0 0 4px; color: #111; }
-.wk-day-note { font-size: 13px; color: #666; font-family: 'DM Mono', monospace; }
-.wk-talk-badge {
-  display: inline-block; margin-left: 10px; background: #f0ede6;
-  border: 1px solid #ddd9d0; border-radius: 20px; font-size: 11px;
-  font-family: 'DM Mono', monospace; padding: 1px 9px; color: #666;
-  vertical-align: middle; font-weight: 400;
-}
-
-.wk-timeline { display: flex; flex-direction: column; gap: 3px; }
-.wk-row { display: grid; grid-template-columns: 52px 1fr; gap: 12px; align-items: start; }
-.wk-time { font-family: 'DM Mono', monospace; font-size: 11.5px; color: #aaa; padding-top: 9px; text-align: right; }
-.wk-event { border-radius: 6px; padding: 7px 11px 8px; border-left: 3px solid transparent; }
-.wk-event-label { font-size: 13.5px; font-weight: 500; line-height: 1.3; }
-.wk-event-detail { font-size: 12px; margin-top: 2px; line-height: 1.4; font-family: 'DM Mono', monospace; }
-
-.wk-session-header {
-  margin: 10px 0 2px 64px;
-  font-family: 'DM Mono', monospace; font-size: 11px;
-  letter-spacing: 0.07em; text-transform: uppercase; color: #bbb;
-  padding-bottom: 3px; border-bottom: 1px solid #ece9e2;
-}
-.wk-session-header span { color: #aaa; font-weight: 400; }
-
-.wk-talk-slot { border-radius: 5px; padding: 6px 11px 8px; background: #edf7f0; border-left: 3px solid #2a8a5c; }
-.wk-talk-num { font-family: 'DM Mono', monospace; font-size: 10px; color: #3a8060; letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 3px; }
-.wk-talk-title { font-size: 13px; font-weight: 500; color: #0d3d24; }
-.wk-talk-speaker { font-size: 12px; color: #1a6040; font-family: 'DM Mono', monospace; margin-top: 2px; }
-.wk-tbc { color: #90c8b0; font-style: italic; }
-
-/* Event colours */
-.wk-meal   { background: #fdf5e6; border-left-color: #c9861a; }
-.wk-meal   .wk-event-label { color: #5a3800; } .wk-meal   .wk-event-detail { color: #8a5c10; }
-.wk-coffee { background: #f5f3ef; border-left-color: #9e9b94; }
-.wk-coffee .wk-event-label { color: #3a3830; } .wk-coffee .wk-event-detail { color: #6a6760; }
-.wk-annc   { background: #f0ede6; border-left-color: #c9b88a; }
-.wk-annc   .wk-event-label { color: #4a3810; } .wk-annc   .wk-event-detail { color: #7a6030; }
-.wk-round  { background: #efeefc; border-left-color: #7068cc; }
-.wk-round  .wk-event-label { color: #231c5c; } .wk-round  .wk-event-detail { color: #4840a0; }
-.wk-open   { background: #e8f3fb; border-left-color: #2e7fc0; }
-.wk-open   .wk-event-label { color: #0b2d4a; } .wk-open   .wk-event-detail { color: #1a5a90; }
-.wk-agm    { background: #fdf0eb; border-left-color: #c95420; }
-.wk-agm    .wk-event-label { color: #4a1800; } .wk-agm    .wk-event-detail { color: #8a3a10; }
-.wk-whisky { background: #fdf3d6; border-left-color: #c9961a; }
-.wk-whisky .wk-event-label { color: #3d2200; } .wk-whisky .wk-event-detail { color: #7a5200; }
-.wk-dinner { background: #fceef4; border-left-color: #c05080; }
-.wk-dinner .wk-event-label { color: #48112c; } .wk-dinner .wk-event-detail { color: #8a3060; }
-.wk-free   { background: #eef6e4; border-left-color: #5a9420; }
-.wk-free   .wk-event-label { color: #1a3600; } .wk-free   .wk-event-detail { color: #3a6810; }
-.wk-pub    { background: #fdf8ec; border-left-color: #d4a020; }
-.wk-pub    .wk-event-label { color: #3d2800; } .wk-pub    .wk-event-detail { color: #7a5200; }
-
-.wk-legend { display: flex; flex-wrap: wrap; gap: 10px 16px; margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid #e8e5de; }
-.wk-leg { display: flex; align-items: center; gap: 7px; font-size: 12px; color: #666; }
-.wk-leg-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
-
-.wk-day-panel { display: none; }
-.wk-day-panel.wk-visible { display: block; }
-
-@media (max-width: 480px) {
-  .wk-tab { padding: 7px 12px 9px; font-size: 12px; }
-  .wk-row { grid-template-columns: 44px 1fr; gap: 8px; }
-  .wk-session-header { margin-left: 56px; }
-}
-</style>
-</head>
-<body>
+    <p>
+        An HTML version of the provisional program is below.<br>
+        Downloads:
+        <a href="assets/MAGICtimetable.pdf">Programme (PDF)</a>
+        &nbsp;&middot;&nbsp;
+        <a href="assets/abstracts.pdf">Book of Abstracts (PDF)</a>
+    </p>
 
 <div class="wk-schedule">
 
@@ -324,11 +229,6 @@ function wkShowDay(id, btn) {
 }
 </script>
 
-</body>
-</html>
-
-
-        
     <footer>
         &copy; CSA
         &nbsp;|&nbsp; Design by <a href="https://github.com/mikepierce">Mike Pierce</a>
@@ -336,4 +236,3 @@ function wkShowDay(id, btn) {
 
 </body>
 </html>
-
